@@ -13,11 +13,12 @@ class GithubProject:
 
     def __init__(self):
         self.page = None
-        self.base_host = 'https://github.com' # 默认主页
-        self.base_host_file_host = 'https://raw.githubusercontent.com' # 默认.md文件浏览地址
-        self.default_master = "master" # 默认分支
+        self.base_host = 'https://github.com'  # 默认主页
+        self.base_host_file_host = 'https://raw.githubusercontent.com'  # 默认.md文件浏览地址
+        self.default_master = "master"  # 默认分支
         # 配置日志记录器
-        logging.basicConfig(level=logging.DEBUG, filename='app.log', filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
+        logging.basicConfig(level=logging.DEBUG, filename='app.log', filemode='w',
+                            format='%(asctime)s - %(levelname)s - %(message)s')
 
     def __int__(self, project_name, project_url, markdown_2_blog_site):
         self._project_url = project_url  # 项目地址
@@ -74,7 +75,22 @@ class GithubProject:
             my_file_utile.create_folder()
             if str(els.text).endswith('.md'):
                 print('开始处理：' + els.text + ' 文件')
-
+                xpath = 'xpath://div//li[@class="PRIVATE_TreeView-item"]//span[@class="PRIVATE_TreeView-item-content-text"]//span[contains(text(), "' + els.text + '")]'
+                self.page.ele(xpath).click()
+                # https://raw.githubusercontent.com/jackfrued/Python-100-Days/master/Day01-15/01.%E5%88%9D%E8%AF%86Python.md
+                md_download_url = 'https://raw.githubusercontent.com/jackfrued/Python-100-Days/master/' + row[
+                    1] + '/' + els.text
+                print(md_download_url)
+                md_file_path = './projectTempInfo/' + self._project_name + '/' + els.text
+                self.page.download_set.by_DownloadKit()
+                self.page.download(
+                    md_download_url,
+                    md_file_path,
+                    None,
+                    'overwrite',
+                    show_msg=True
+                )
+                self.handle_images(md_file_path)
                 # time.sleep(5)
             else:
                 pass
@@ -83,8 +99,15 @@ class GithubProject:
         print(self._project_url)
         return blog
 
-    def handle_images(self, blog):
-        pass
+    # md文件中的图片地址转为本地
+    def handle_images(self, md_path):
+        #  1 读取文件
+        with open(md_path, 'r', newline='', encoding='utf-8') as md_file:
+            reader = csv.reader(md_file)
+            # 逐行读取CSV文件内容
+            for row in reader:
+                # 打印每一行数据
+                self.parse_second_file(row)
 
 
 if __name__ == '__main__':
