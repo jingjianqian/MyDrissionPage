@@ -2,6 +2,8 @@
 github 项目内部 markdown 转 博客以及
 """
 import pathlib
+import re
+
 import MyFileUtil
 import logging
 import DrissionPage
@@ -16,6 +18,7 @@ class GithubProject:
         self.base_host = 'https://github.com'  # 默认主页
         self.base_host_file_host = 'https://raw.githubusercontent.com'  # 默认.md文件浏览地址
         self.default_master = "master"  # 默认分支
+        self.workDirectory = ''
         # 配置日志记录器
         logging.basicConfig(level=logging.DEBUG, filename='app.log', filemode='w',
                             format='%(asctime)s - %(levelname)s - %(message)s')
@@ -65,12 +68,12 @@ class GithubProject:
 
     def parse_second_file(self, row):
         self.page.get(row[0])
-        # print(row[1])
-        seconds_files = self.page.eles(row[2])
+        seconds_files = self.page.eles(row[1])
+        self.workDirectory = str(row[2])
         my_file_utile = MyFileUtil.MyFileUtil('./projectTempInfo/' + self._project_name + '/')
-        # print(seconds_files[0].text)
         my_file_utile.create_folder()
         for els in seconds_files:
+
             my_file_utile = MyFileUtil.MyFileUtil('./projectTempInfo/' + self._project_name + '/' + els.text)
             my_file_utile.create_folder()
             if str(els.text).endswith('.md'):
@@ -80,18 +83,19 @@ class GithubProject:
                 # https://raw.githubusercontent.com/jackfrued/Python-100-Days/master/Day01-15/01.%E5%88%9D%E8%AF%86Python.md
                 md_download_url = 'https://raw.githubusercontent.com/jackfrued/Python-100-Days/master/' + row[
                     1] + '/' + els.text
-                print(md_download_url)
-                md_file_path = './projectTempInfo/' + self._project_name + '/' + els.text
+                md_file_path = './projectTempInfo\\' + self._project_name + '' + '\\' + els.text
+                logging.info('开始下载文件：' + md_file_path)
                 self.page.download_set.by_DownloadKit()
-                self.page.download(
+                self.page.wait.download_begin()
+                download_result = self.page.download(
                     md_download_url,
                     md_file_path,
                     None,
                     'overwrite',
                     show_msg=True
                 )
-                self.handle_images(md_file_path)
-                # time.sleep(5)
+                if download_result[0] == 'success':
+                    self.handle_images(download_result[1])
             else:
                 pass
 
@@ -101,13 +105,41 @@ class GithubProject:
 
     # md文件中的图片地址转为本地
     def handle_images(self, md_path):
+        print('当前处理的文件夹：' + self.workDirectory)
         #  1 读取文件
+        print(self._project_url)
+        url_re = r"!\[.*?\]\((.*?)\)"
+        # 读取markdown文件并获取图片数组
         with open(md_path, 'r', newline='', encoding='utf-8') as md_file:
-            reader = csv.reader(md_file)
-            # 逐行读取CSV文件内容
-            for row in reader:
-                # 打印每一行数据
-                self.parse_second_file(row)
+            md_text = md_file.read()
+        image_urls = re.findall(url_re, md_text)
+        # 解析图片地址
+        if len(image_urls) > 0:
+            for img in image_urls:
+                if img.startswith('http'):  # 处理网络图片
+                    print('TODO handle this!')
+                    pass
+                elif img.startswith('./') or img.startswith('/') or img.startswith('\\'):  # 处理相相对路径的本地图片
+                    folders = img.split('/')
+                    if folders[0] == '.':
+                        # for folder in folders:
+                        #     print(folder)
+                        for index in range(len(folders)):
+                            if index == 0:
+                                pass
+                            elif index == len(folders) - 1:
+                                pass
+                            else:
+                                print(self.workDirectory)
+                                print(folders[index])
+                else:
+                    print('未知路径')
+        else:
+            logging.info('没有找到图片信息')
+
+    def http_image_to_my_blog(self, image_url):
+        print(self._project_url)
+        pass
 
 
 if __name__ == '__main__':
