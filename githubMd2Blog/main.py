@@ -77,7 +77,7 @@ class GithubProjects:
             try:
                 project_level1_files_url = self._API_PROJECT_FILES_LEVEL1.format(self._project_owner_name,
                                                                                  self._project_name)
-                time.sleep(10) # 请求频率不能太高
+                time.sleep(10)  # 请求频率不能太高
                 result = requests.get(project_level1_files_url)
                 if result.status_code == 200:
                     project_level_file = result.json()
@@ -98,7 +98,8 @@ class GithubProjects:
                                 project_level2_files = result2.json()
                                 for second_file in project_level2_files:
                                     if second_file.get('type') == 'file':
-                                        self.parse_markdown_file(second_file.get('url'), file.get('name') + '/' + second_file.get('name'))
+                                        self.save_markdown_file(second_file.get('url'),
+                                                                file.get('name') + '/' + second_file.get('name'))
 
                 else:
                     logging.error('请求【' + project_level1_files_url + '】失败！')
@@ -153,30 +154,37 @@ class GithubProjects:
             self._project_name = items[0]
             self._project_owner_name = items[1]
 
-    def parse_markdown_file(self, markdown_file_url, path):
+    def save_markdown_file(self, markdown_file_url, path):
         print(self._project_name)
         temp_response = requests.get(markdown_file_url)
         if temp_response.status_code == 200:
             result = temp_response.json()
             if result.get('download_url') is not None and result.get('download_url') != '':
-                time.sleep(10) # 慢慢来，不要急
+                time.sleep(10)  # 慢慢来，不要急
                 req = requests.get(result.get('download_url'))
                 try:
-                    my_file_utile = MyFileUtil.MyFileUtil('./projectTempInfo/' + self._project_name + '/' + path.split('/')[0])
+                    my_file_utile = MyFileUtil.MyFileUtil(
+                        './projectTempInfo/' + self._project_name + '/' + path.split('/')[0])
                     create_folder_result = my_file_utile.create_folder()
                     if create_folder_result is True:
-                        with open(r"./projectTempInfo/"+self._project_name + '/' + path, "wb") as f:
+                        with open(r"./projectTempInfo/" + self._project_name + '/' + path, "wb") as f:
                             f.write(req.content)
                     else:
                         my_file_utile = MyFileUtil.MyFileUtil('./projectTempInfo/')
                         my_file_utile.create_folder()
-                        with open(r"./projectTempInfo/"+ path, "wb") as f:
+                        with open(r"./projectTempInfo/" + path, "wb") as f:
                             f.write(req.content)
                 except FileNotFoundError:
                     logging.error("文件夹不存在")
         else:
             logging.info('下载【' + markdown_file_url + '文件失败，请检查')
         pass
+
+    def parse_markdown_file(self, markdown_file_path):
+        path = './projectTempInfo' + self._project_name
+        with open(markdown_file_path, 'r') as content:
+            file_content = content.read()
+            print(file_content)
 
 
 if __name__ == '__main__':
