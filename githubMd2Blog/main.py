@@ -1,3 +1,4 @@
+import re
 import time
 from random import Random
 
@@ -77,7 +78,7 @@ class GithubProjects:
             try:
                 project_level1_files_url = self._API_PROJECT_FILES_LEVEL1.format(self._project_owner_name,
                                                                                  self._project_name)
-                time.sleep(10)  # 请求频率不能太高
+                # time.sleep(10)  # 请求频率不能太高
                 result = requests.get(project_level1_files_url)
                 if result.status_code == 200:
                     project_level_file = result.json()
@@ -92,7 +93,6 @@ class GithubProjects:
                                                                                             file.get('path'))
 
                             print(project_level2_file_url)
-                            time.sleep(10)
                             result2 = requests.get(file.get('url'))
                             if result2.status_code == 200:
                                 project_level2_files = result2.json()
@@ -160,7 +160,7 @@ class GithubProjects:
         if temp_response.status_code == 200:
             result = temp_response.json()
             if result.get('download_url') is not None and result.get('download_url') != '':
-                time.sleep(10)  # 慢慢来，不要急
+                # time.sleep(10)  # 慢慢来，不要急
                 req = requests.get(result.get('download_url'))
                 try:
                     my_file_utile = MyFileUtil.MyFileUtil(
@@ -168,7 +168,11 @@ class GithubProjects:
                     create_folder_result = my_file_utile.create_folder()
                     if create_folder_result is True:
                         with open(r"./projectTempInfo/" + self._project_name + '/' + path, "wb") as f:
+                            url_re = r"!\[.*?\]\((.*?)\)"
+                            image_urls = re.findall(url_re, req.text)
+                            self.handle_markdown_url(image_urls)
                             f.write(req.content)
+
                     else:
                         my_file_utile = MyFileUtil.MyFileUtil('./projectTempInfo/')
                         my_file_utile.create_folder()
@@ -185,6 +189,39 @@ class GithubProjects:
         with open(markdown_file_path, 'r') as content:
             file_content = content.read()
             print(file_content)
+
+    """
+        处理不通类型的图片地址
+    """
+
+    def handle_markdown_url(self, image_urls):
+        print(self._project_name)
+        if len(image_urls) > 0:
+            for url in image_urls:
+                if url.startswith('http'):  # 处理网络图片
+                    print('TODO handle this!')
+                    pass
+                elif url.startswith('./') or url.startswith('/') or url.startswith('\\'):  # 处理相相对路径的本地图片
+                    folders = url.split('/')
+
+    """
+        下载网络图片
+    """
+    def download_http_image(self, url):
+        print(self._project_name)
+        image_b = requests.get(url)
+        with open('./projectTempInfo/downloads/', 'r') as content:
+            content.write(image_b.text)
+
+    """
+        下载相对路径图片（github项目地址）
+    """
+    def handl_relative_path(self, relative_path):
+        print(self._project_name)
+        if relative_path.startswith('./') or relative_path.startswith('/') or relative_path.startswith('\\'):
+            pass
+        else:
+            print("你的地址貌似不是相对地址，请核对！")
 
 
 if __name__ == '__main__':
