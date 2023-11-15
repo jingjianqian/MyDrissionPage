@@ -84,7 +84,7 @@ class GithubProjects:
                     project_level_file = result.json()
                     for file in project_level_file:
                         if self._readMe and file.get('type') == 'file' and file.get('path') == 'READE.md':
-                            self.parse_markdown_file(file.get('url'))
+                            self.save_markdown_file(file.get('url'), file.get('path'))
                         elif file.get('type') == 'dir':
                             #  ：https://raw.githubusercontent.com/{用户名}/{仓库名}/{分支名}/{文件路径}
                             project_level2_file_url = self._API_PROJECT_FILES_LEVEL2.format(self._project_owner_name,
@@ -92,15 +92,29 @@ class GithubProjects:
                                                                                             self._branch,
                                                                                             file.get('path'))
 
-                            print(project_level2_file_url)
                             result2 = requests.get(file.get('url'))
                             if result2.status_code == 200:
                                 project_level2_files = result2.json()
                                 for second_file in project_level2_files:
                                     if second_file.get('type') == 'file':
-                                        self.save_markdown_file(second_file.get('url'),
-                                                                file.get('name') + '/' + second_file.get('name'))
+                                        self.save_markdown_file(second_file.get('url'),second_file.get('path'))
 
+                                        # break
+                                        """
+                                        {'name': '01.初识Python.md', 
+                                         'path': 'Day01-15/01.初识Python.md', 
+                                        'sha': 'e1868952473270f648cddf4e2bfe00929067453f', 
+                                        'size': 12325, 
+                                        'url': 'https://api.github.com/repos/jackfrued/Python-100-Days/contents/Day01-15/01.%E5%88%9D%E8%AF%86Python.md?ref=master',
+                                         'html_url': 'https://github.com/jackfrued/Python-100-Days/blob/master/Day01-15/01.%E5%88%9D%E8%AF%86Python.md', 
+                                         'git_url': 'https://api.github.com/repos/jackfrued/Python-100-Days/git/blobs/e1868952473270f648cddf4e2bfe00929067453f', 
+                                         'download_url': 'https://raw.githubusercontent.com/jackfrued/Python-100-Days/master/Day01-15/01.%E5%88%9D%E8%AF%86Python.md', 
+                                         'type': 'file', '_links': {'self': 'https://api.github.com/repos/jackfrued/Python-100-Days/contents/Day01-15/01.%E5%88%9D%E8%AF%86Python.md?ref=master', 
+                                         'git': 'https://api.github.com/repos/jackfrued/Python-100-Days/git/blobs/e1868952473270f648cddf4e2bfe00929067453f', 
+                                         'html': 'https://github.com/jackfrued/Python-100-Days/blob/master/Day01-15/01.%E5%88%9D%E8%AF%86Python.md'}
+                                         }
+                                        """
+                        # break
                 else:
                     logging.error('请求【' + project_level1_files_url + '】失败！')
             except KeyError:
@@ -141,9 +155,21 @@ class GithubProjects:
         # except ElementNotFoundError:
         #     logging.info('获取【' + self._name + '】LEVEL1层文件夹失效，可能页面已经调整')
 
+
     """
         解析项目地址，获取文件夹信息
     """
+
+    def parse_project_files_with_drissionpage(self):
+        try:
+            chrome = DrissionPage.ChromiumPage()
+            chrome.get(self._project_url)
+            # 找到第一级文件夹路径
+            els = chrome.eles('xpath://')
+            for ele in els:
+                ele.click()
+        except ElementNotFoundError:
+            logging.error("找不到元素")
 
     def parse_project_url(self):
         items = self._project_url.split('/')
@@ -170,9 +196,11 @@ class GithubProjects:
                         with open(r"./projectTempInfo/" + self._project_name + '/' + path, "wb") as f:
                             url_re = r"!\[.*?\]\((.*?)\)"
                             image_urls = re.findall(url_re, req.text)
+                            file_relative_path = str(path)
+                            file_relative_folder = file_relative_path[:file_relative_path.rfind('/')]
+                            print(file_relative_folder)
                             self.handle_markdown_url(image_urls)
                             f.write(req.content)
-
                     else:
                         my_file_utile = MyFileUtil.MyFileUtil('./projectTempInfo/')
                         my_file_utile.create_folder()
@@ -189,7 +217,6 @@ class GithubProjects:
         with open(markdown_file_path, 'r') as content:
             file_content = content.read()
             print(file_content)
-
     """
         处理不通类型的图片地址
     """
