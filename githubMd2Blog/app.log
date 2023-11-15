@@ -1,13 +1,34 @@
-2023-11-15 13:09:17,354 - DEBUG - Starting new HTTP connection (1): 127.0.0.1:9222
-2023-11-15 13:09:17,366 - DEBUG - http://127.0.0.1:9222 "GET /json HTTP/1.1" 200 477
-2023-11-15 13:09:17,369 - DEBUG - Starting new HTTP connection (1): 127.0.0.1:9222
-2023-11-15 13:09:17,370 - DEBUG - http://127.0.0.1:9222 "GET /json HTTP/1.1" 200 477
-2023-11-15 13:09:17,379 - DEBUG - http://127.0.0.1:9222 "GET /json/version HTTP/1.1" 200 422
-2023-11-15 13:09:20,712 - DEBUG - Starting new HTTPS connection (1): api.github.com:443
-2023-11-15 13:09:21,905 - DEBUG - https://api.github.com:443 "GET /repos/jackfrued/Python-100-Days/contents HTTP/1.1" 200 1590
-2023-11-15 13:09:26,853 - DEBUG - Starting new HTTPS connection (1): api.github.com:443
-2023-11-15 13:09:27,971 - DEBUG - https://api.github.com:443 "GET /repos/jackfrued/Python-100-Days/contents/Day01-15?ref=master HTTP/1.1" 200 2343
-2023-11-15 13:09:56,569 - DEBUG - Starting new HTTPS connection (1): api.github.com:443
-2023-11-15 13:09:57,760 - DEBUG - https://api.github.com:443 "GET /repos/jackfrued/Python-100-Days/contents/Day01-15/01.%E5%88%9D%E8%AF%86Python.md?ref=master HTTP/1.1" 200 None
-2023-11-15 13:09:57,767 - DEBUG - Starting new HTTPS connection (1): raw.githubusercontent.com:443
-2023-11-15 13:09:59,040 - DEBUG - https://raw.githubusercontent.com:443 "GET /jackfrued/Python-100-Days/master/Day01-15/01.%E5%88%9D%E8%AF%86Python.md HTTP/1.1" 200 5791
+2023-11-15 23:50:11,114 - DEBUG - Starting new HTTP connection (1): 127.0.0.1:9222
+2023-11-15 23:50:11,630 - DEBUG - http://127.0.0.1:9222 "GET /json HTTP/1.1" 200 442
+2023-11-15 23:50:11,634 - DEBUG - Starting new HTTP connection (1): 127.0.0.1:9222
+2023-11-15 23:50:11,636 - DEBUG - http://127.0.0.1:9222 "GET /json HTTP/1.1" 200 442
+2023-11-15 23:50:11,646 - DEBUG - http://127.0.0.1:9222 "GET /json/version HTTP/1.1" 200 422
+2023-11-15 23:50:17,341 - DEBUG - Starting new HTTPS connection (1): api.github.com:443
+2023-11-15 23:50:18,604 - DEBUG - https://api.github.com:443 "GET /repos/jackfrued/Python-100-Days/contents HTTP/1.1" 200 1590
+2023-11-15 23:51:02,437 - DEBUG - Starting new HTTPS connection (1): api.github.com:443
+2023-11-15 23:51:04,133 - DEBUG - https://api.github.com:443 "GET /repos/jackfrued/Python-100-Days/contents/Day01-15?ref=master HTTP/1.1" 200 2343
+2023-11-15 23:51:48,283 - DEBUG - Starting new HTTPS connection (1): api.github.com:443
+2023-11-15 23:51:49,908 - DEBUG - https://api.github.com:443 "GET /repos/jackfrued/Python-100-Days/contents/Day01-15/01.%E5%88%9D%E8%AF%86Python.md?ref=master HTTP/1.1" 200 None
+2023-11-15 23:51:49,914 - DEBUG - Starting new HTTPS connection (1): raw.githubusercontent.com:443
+2023-11-15 23:51:51,250 - DEBUG - https://raw.githubusercontent.com:443 "GET /jackfrued/Python-100-Days/master/Day01-15/01.%E5%88%9D%E8%AF%86Python.md HTTP/1.1" 200 5791
+2023-11-15 23:51:51,257 - DEBUG - Starting new HTTPS connection (1): github.com:443
+2023-11-15 23:51:52,776 - DEBUG - https://github.com:443 "GET /jackfrued/Python-100-Days/jackfrued/blob/mainDay01-15/01.%E5%88%9D%E8%AF%86Python.md//res/python-idle.png HTTP/1.1" 404 40
+2023-11-15 23:51:52,781 - INFO - œ¬‘ÿ°æhttps://github.com/jackfrued/Python-100-Days/jackfrued/blob/mainDay01-15/01.≥ı ∂Python.md//res/python-idle.png°ø ß∞‹
+2023-11-15 23:51:52,786 - DEBUG - Starting new HTTPS connection (1): github.com:443
+2023-11-15 23:51:54,126 - DEBUG - https://github.com:443 "GET /jackfrued/Python-100-Days/jackfrued/blob/mainDay01-15/01.%E5%88%9D%E8%AF%86Python.md//res/python-ipython.png HTTP/1.1" 404 40
+2023-11-15 23:51:54,129 - INFO - œ¬‘ÿ°æhttps://github.com/jackfrued/Python-100-Days/jackfrued/blob/mainDay01-15/01.≥ı ∂Python.md//res/python-ipython.png°ø ß∞‹
+2023-11-15 23:51:54,135 - DEBUG - Starting new HTTPS connection (1): github.com:443
+2023-11-15 23:51:55,536 - DEBUG - https://github.com:443 "GET /jackfrued/Python-100-Days/jackfrued/blob/mainDay01-15/01.%E5%88%9D%E8%AF%86Python.md//res/python-sublime.png HTTP/1.1" 404 40
+2023-11-15 23:51:55,540 - INFO - œ¬‘ÿ°æhttps://github.com/jackfrued/Python-100-Days/jackfrued/blob/mainDay01-15/01.≥ı ∂Python.md//res/python-sublime.png°ø ß∞‹
+2023-11-15 23:51:55,545 - DEBUG - Starting new HTTPS connection (1): github.com:443
+2023-11-15 23:51:56,885 - DEBUG - https://github.com:443 "GET /jackfrued/Python-100-Days/jackfrued/blob/mainDay01-15/01.%E5%88%9D%E8%AF%86Python.md//res/python-pycharm.png HTTP/1.1" 404 40
+2023-11-15 23:51:56,888 - INFO - œ¬‘ÿ°æhttps://github.com/jackfrued/Python-100-Days/jackfrued/blob/mainDay01-15/01.≥ı ∂Python.md//res/python-pycharm.png°ø ß∞‹
+2023-11-15 23:52:23,676 - DEBUG - Starting new HTTPS connection (1): api.github.com:443
+2023-11-15 23:52:25,136 - DEBUG - https://api.github.com:443 "GET /repos/jackfrued/Python-100-Days/contents/Day01-15/02.%E8%AF%AD%E8%A8%80%E5%85%83%E7%B4%A0.md?ref=master HTTP/1.1" 200 None
+2023-11-15 23:53:24,281 - DEBUG - Starting new HTTPS connection (1): raw.githubusercontent.com:443
+2023-11-15 23:53:25,750 - DEBUG - https://raw.githubusercontent.com:443 "GET /jackfrued/Python-100-Days/master/Day01-15/02.%E8%AF%AD%E8%A8%80%E5%85%83%E7%B4%A0.md HTTP/1.1" 200 6186
+2023-11-15 23:54:31,549 - INFO - Õº∆¨¡–±ÌŒ™ø’
+2023-11-15 23:54:47,869 - DEBUG - Starting new HTTPS connection (1): api.github.com:443
+2023-11-15 23:54:49,383 - DEBUG - https://api.github.com:443 "GET /repos/jackfrued/Python-100-Days/contents/Day01-15/03.%E5%88%86%E6%94%AF%E7%BB%93%E6%9E%84.md?ref=master HTTP/1.1" 200 None
+2023-11-15 23:54:52,259 - DEBUG - Starting new HTTPS connection (1): raw.githubusercontent.com:443
+2023-11-15 23:54:54,337 - DEBUG - https://raw.githubusercontent.com:443 "GET /jackfrued/Python-100-Days/master/Day01-15/03.%E5%88%86%E6%94%AF%E7%BB%93%E6%9E%84.md HTTP/1.1" 200 2703

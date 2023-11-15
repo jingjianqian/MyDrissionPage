@@ -76,45 +76,38 @@ class GithubProjects:
     def parse_project_files(self):
         if self._project_owner_name is not None and self._project_name is not None:
             try:
-                project_level1_files_url = self._API_PROJECT_FILES_LEVEL1.format(self._project_owner_name,
-                                                                                 self._project_name)
-                # time.sleep(10)  # 请求频率不能太高
+                # 1、项目地址解析
+                project_level1_files_url = self._API_PROJECT_FILES_LEVEL1.format(self._project_owner_name, self._project_name)
+                # 2、访问项目
                 result = requests.get(project_level1_files_url)
+                # 3、判断项目访问结果
                 if result.status_code == 200:
+                    # 3.1 解析项目返回的返回信息
                     project_level_file = result.json()
+                    """
+                        3.2 循环处理第一层文件夹
+                    """
                     for file in project_level_file:
+                        # 3.2.1 处理第一层文件夹为文件或者reade.md
+                        self._workDirectory = file.get('path')  # 标记当前路径
                         if self._readMe and file.get('type') == 'file' and file.get('path') == 'READE.md':
                             self.save_markdown_file(file.get('url'), file.get('path'))
+                        # 3.2.2 处理文件夹
                         elif file.get('type') == 'dir':
-                            #  ：https://raw.githubusercontent.com/{用户名}/{仓库名}/{分支名}/{文件路径}
-                            project_level2_file_url = self._API_PROJECT_FILES_LEVEL2.format(self._project_owner_name,
-                                                                                            self._project_name,
-                                                                                            self._branch,
-                                                                                            file.get('path'))
-
+                            """
+                                3.2.3 处理第二层文件夹
+                            """
                             result2 = requests.get(file.get('url'))
                             if result2.status_code == 200:
                                 project_level2_files = result2.json()
                                 for second_file in project_level2_files:
+                                    self._workDirectory = second_file.get('path')   # 标记了一处地点
                                     if second_file.get('type') == 'file':
-                                        self.save_markdown_file(second_file.get('url'),second_file.get('path'))
-
-                                        # break
-                                        """
-                                        {'name': '01.初识Python.md', 
-                                         'path': 'Day01-15/01.初识Python.md', 
-                                        'sha': 'e1868952473270f648cddf4e2bfe00929067453f', 
-                                        'size': 12325, 
-                                        'url': 'https://api.github.com/repos/jackfrued/Python-100-Days/contents/Day01-15/01.%E5%88%9D%E8%AF%86Python.md?ref=master',
-                                         'html_url': 'https://github.com/jackfrued/Python-100-Days/blob/master/Day01-15/01.%E5%88%9D%E8%AF%86Python.md', 
-                                         'git_url': 'https://api.github.com/repos/jackfrued/Python-100-Days/git/blobs/e1868952473270f648cddf4e2bfe00929067453f', 
-                                         'download_url': 'https://raw.githubusercontent.com/jackfrued/Python-100-Days/master/Day01-15/01.%E5%88%9D%E8%AF%86Python.md', 
-                                         'type': 'file', '_links': {'self': 'https://api.github.com/repos/jackfrued/Python-100-Days/contents/Day01-15/01.%E5%88%9D%E8%AF%86Python.md?ref=master', 
-                                         'git': 'https://api.github.com/repos/jackfrued/Python-100-Days/git/blobs/e1868952473270f648cddf4e2bfe00929067453f', 
-                                         'html': 'https://github.com/jackfrued/Python-100-Days/blob/master/Day01-15/01.%E5%88%9D%E8%AF%86Python.md'}
-                                         }
-                                        """
-                        # break
+                                        self.save_markdown_file(second_file.get('url'), second_file.get('path'))
+                                    else:
+                                        print('不是文件')
+                            else:
+                                logging.error('请求【' + file.get('url') + '】失败！')
                 else:
                     logging.error('请求【' + project_level1_files_url + '】失败！')
             except KeyError:
@@ -129,32 +122,6 @@ class GithubProjects:
                 self.parse_project_files()
         else:
             logging.info('请初始化项目url地址')
-
-        # try:
-        #     logging.info('开始爬取:' + self._name + '项目的Markdown文件')
-        #     self._page.get(self._project_url)
-        #     logging.info('处理LEVEL1层文件夹:' + self._name + '项目的Markdown文件')
-        #     level1_files = self._page.eles(
-        #         "xpath://div[@class='js-details-container Details']//div[@role='rowheader']//a")
-        #     if len(level1_files) > 0:
-        #         logging.info('找到【' + self._name + '】项目' + str(len(level1_files)) + '个文件')
-        #     else:
-        #         logging.info('没有找到【' + self._name + '】项目文件信息，Game Over！')
-        # except NoResourceError:
-        #     logging.info('获取' + self._name + '项目元素失效，暂停10秒后继续。。。。')
-        #     for i in range(1, 10):
-        #         logging.info(11 - i)
-        #         time.sleep(1)
-        #     self.parse_project_files()
-        # except ContextLossError:
-        #     logging.info('页面好像被刷新了，重新来。。')
-        #     self.parse_project_files()
-        # except ElementLossError:
-        #     logging.info('页面好像被刷新了，重新来。。')
-        #     self.parse_project_files()
-        # except ElementNotFoundError:
-        #     logging.info('获取【' + self._name + '】LEVEL1层文件夹失效，可能页面已经调整')
-
 
     """
         解析项目地址，获取文件夹信息
@@ -181,33 +148,34 @@ class GithubProjects:
             self._project_owner_name = items[1]
 
     def save_markdown_file(self, markdown_file_url, path):
-        print(self._project_name)
+        # 1、访问markdown文件
         temp_response = requests.get(markdown_file_url)
+        # 2、处理返回结果
         if temp_response.status_code == 200:
             result = temp_response.json()
+            # 2.1 开始下载并修改markdown文件
             if result.get('download_url') is not None and result.get('download_url') != '':
-                # time.sleep(10)  # 慢慢来，不要急
                 req = requests.get(result.get('download_url'))
                 try:
-                    my_file_utile = MyFileUtil.MyFileUtil(
-                        './projectTempInfo/' + self._project_name + '/' + path.split('/')[0])
+                    # 创建相对项目下相对文件夹
+                    my_file_utile = MyFileUtil.MyFileUtil('./projectTempInfo/' + self._project_name + '/' + path.split('/')[0])
                     create_folder_result = my_file_utile.create_folder()
                     if create_folder_result is True:
                         with open(r"./projectTempInfo/" + self._project_name + '/' + path, "wb") as f:
+                            f.write(req.content)  # 保存文件
                             url_re = r"!\[.*?\]\((.*?)\)"
-                            image_urls = re.findall(url_re, req.text)
+                            image_urls = re.findall(url_re, req.text)  # 找到的图片列表
                             file_relative_path = str(path)
-                            file_relative_folder = file_relative_path[:file_relative_path.rfind('/')]
-                            print(file_relative_folder)
-                            self.handle_markdown_url(image_urls)
-                            f.write(req.content)
-                    else:
+                            file_relative_folder = file_relative_path[:file_relative_path.rfind('/')]  # 文件相对文件夹（不包含文件名）
+                            self.handle_markdown_url(image_urls, file_relative_folder)  # 处理图片地址，下载相应的文件
+
+                    else:  # 如果创建失败，干脆就创建在最外层
                         my_file_utile = MyFileUtil.MyFileUtil('./projectTempInfo/')
                         my_file_utile.create_folder()
                         with open(r"./projectTempInfo/" + path, "wb") as f:
                             f.write(req.content)
                 except FileNotFoundError:
-                    logging.error("文件夹不存在")
+                    logging.error("创建文件夹失败")
         else:
             logging.info('下载【' + markdown_file_url + '文件失败，请检查')
         pass
@@ -221,16 +189,34 @@ class GithubProjects:
         处理不通类型的图片地址
     """
 
-    def handle_markdown_url(self, image_urls):
-        print(self._project_name)
+    def handle_markdown_url(self, image_urls, file_relative_path):
         if len(image_urls) > 0:
             for url in image_urls:
                 if url.startswith('http'):  # 处理网络图片
                     print('TODO handle this!')
                     pass
-                elif url.startswith('./') or url.startswith('/') or url.startswith('\\'):  # 处理相相对路径的本地图片
-                    folders = url.split('/')
+                elif url.startswith('./') or url.startswith('/')  :  # 处理相相对路径的本地图片
+                    real_image_url = self._project_url + '/' + self._project_owner_name + '/blob/' + self._branch + self._workDirectory + '/' + url[url.find('/'):]
+                    """
+                    
+                     @TODO 路径拼接还有问题，明天继续努力
+                    """
+                    real_image_url_result = requests.get(real_image_url)
+                    if real_image_url_result.status_code == 200:
+                        logging.info("下载图片信息成功")
+                        file_b = real_image_url_result.raw()
+                        with open('./projectTempInfo/' + self._workDirectory + '/' + url[url.find('/'):] , 'r') as content:
+                            content.write(file_b)
+                    else:
+                        logging.info('下载【' + real_image_url + '】失败')
+                    'https://github.com/jackfrued/Python-100-Days/blob/master/Day01-15/res/TCP-IP-model.png?raw=true'
 
+                elif url.startswith('../'):
+                    print('TODO handle this!')
+                else:
+                    logging.info('位置图片地址格式！')
+        else:
+            logging.info('图片列表为空')
     """
         下载网络图片
     """
