@@ -168,7 +168,6 @@ class GithubProjects:
                             file_relative_path = str(path)
                             file_relative_folder = file_relative_path[:file_relative_path.rfind('/')]  # 文件相对文件夹（不包含文件名）
                             self.handle_markdown_url(image_urls, file_relative_folder)  # 处理图片地址，下载相应的文件
-
                     else:  # 如果创建失败，干脆就创建在最外层
                         my_file_utile = MyFileUtil.MyFileUtil('./projectTempInfo/')
                         my_file_utile.create_folder()
@@ -207,10 +206,10 @@ class GithubProjects:
                     if real_image_url_result.status_code == 200:
                         logging.info("下载图片信息成功")
                         file_content = real_image_url_result.content
-                        file_relative_folder = './projectTempInfo/' + self._project_name +'/'+ self._workDirectory[:self._workDirectory.rfind('/')] + url[url.find('/'):url.rfind('/')]
+                        file_relative_folder = './projectTempInfo/' + self._project_name + '/' + self._workDirectory[:self._workDirectory.rfind('/')] + url[url.find('/'):url.rfind('/')]
                         my_file_utile = MyFileUtil.MyFileUtil(file_relative_folder)  # 创建图片文件夹相对路径
                         if my_file_utile.create_folder() is True:
-                            file_path = './projectTempInfo/' + self._workDirectory[:self._workDirectory.rfind('/')] + url[url.find('/'):]
+                            file_path = './projectTempInfo/' + self._project_name + '/' + file_relative_path + '/' +  url[url.find('/'):url.rfind('/')]
                             self._page.download_set.by_DownloadKit()
                             self._page.wait.download_begin()
                             download_result = self._page.download(
@@ -220,7 +219,7 @@ class GithubProjects:
                                 'overwrite',
                                 show_msg=True
                             )
-                            logging.info('图片下载' + download_result)
+                            logging.info('图片下载' + download_result[0])
                             # with open(file_path, 'wb') as content:
                             #     content.write(file_content)  # 保存图片
                         else:
