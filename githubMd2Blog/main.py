@@ -62,7 +62,7 @@ class GithubProjects:
         if master is not None:
             self._branch = master
         else:
-            self._branch = "main"
+            self._branch = "master"
         self._tree_url = self._project_url + '/tree/' + self._branch
         self._page = page
         self._readMe = False
@@ -195,8 +195,10 @@ class GithubProjects:
                 if url.startswith('http'):  # 处理网络图片
                     print('TODO handle this!')
                     pass
-                elif url.startswith('./') or url.startswith('/')  :  # 处理相相对路径的本地图片
-                    real_image_url = self._project_url + '/' + self._project_owner_name + '/blob/' + self._branch + self._workDirectory + '/' + url[url.find('/'):]
+                elif url.startswith('./') or url.startswith('/') :  # 处理相相对路径的本地图片
+                    #  'https://raw.githubusercontent.com/{用户名}/{仓库名}/{分支名}/{文件路径}'
+                    real_image_url = self._API_PROJECT_FILE_RAW.format(self._project_owner_name, self._project_name, self._branch, self._workDirectory[:self._workDirectory.rfind('/')] + url[url.find('/'):])
+                    # real_image_url = self._project_url + '/' + self._project_owner_name + '/blob/' + self._branch + self._workDirectory + '/' + url[url.find('/'):url.rfind('/')]
                     """
                     
                      @TODO 路径拼接还有问题，明天继续努力
@@ -204,9 +206,25 @@ class GithubProjects:
                     real_image_url_result = requests.get(real_image_url)
                     if real_image_url_result.status_code == 200:
                         logging.info("下载图片信息成功")
-                        file_b = real_image_url_result.raw()
-                        with open('./projectTempInfo/' + self._workDirectory + '/' + url[url.find('/'):] , 'r') as content:
-                            content.write(file_b)
+                        file_content = real_image_url_result.content
+                        file_relative_folder = './projectTempInfo/' + self._project_name +'/'+ self._workDirectory[:self._workDirectory.rfind('/')] + url[url.find('/'):url.rfind('/')]
+                        my_file_utile = MyFileUtil.MyFileUtil(file_relative_folder)  # 创建图片文件夹相对路径
+                        if my_file_utile.create_folder() is True:
+                            file_path = './projectTempInfo/' + self._workDirectory[:self._workDirectory.rfind('/')] + url[url.find('/'):]
+                            self._page.download_set.by_DownloadKit()
+                            self._page.wait.download_begin()
+                            download_result = self._page.download(
+                                real_image_url,
+                                file_path,
+                                None,
+                                'overwrite',
+                                show_msg=True
+                            )
+                            logging.info('图片下载' + download_result)
+                            # with open(file_path, 'wb') as content:
+                            #     content.write(file_content)  # 保存图片
+                        else:
+                            logging.error('创建文件夹' + file_relative_folder + '失败')
                     else:
                         logging.info('下载【' + real_image_url + '】失败')
                     'https://github.com/jackfrued/Python-100-Days/blob/master/Day01-15/res/TCP-IP-model.png?raw=true'
@@ -235,6 +253,7 @@ class GithubProjects:
             pass
         else:
             print("你的地址貌似不是相对地址，请核对！")
+
 
 
 if __name__ == '__main__':

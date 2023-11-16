@@ -14,6 +14,7 @@ class MyFileUtil:
             print(f"文件夹 '{self._path}' 已存在")
             return True
         except Exception as e:
+            print("error:")
             print(f"创建文件夹 '{self._path}' 出错：{e}")
             return False
 
