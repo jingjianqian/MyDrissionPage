@@ -44,3 +44,7 @@ class MyFileUtil:
             print(f"文件 '{filename}' 不存在")
         except Exception as e:
             print(f"删除文件 '{filename}' 出错：{e}")
+
+    def file_if_exists(self):
+        print(self._path)
+        return True

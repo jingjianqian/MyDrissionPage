@@ -65,6 +65,7 @@ class GithubProjects:
             self._branch = "master"
         self._tree_url = self._project_url + '/tree/' + self._branch
         self._page = page
+        self._page.download_set.by_DownloadKit()
         self._readMe = False
         self._default_level = 1
 
@@ -192,14 +193,11 @@ class GithubProjects:
         if len(image_urls) > 0:
             for url in image_urls:
                 if url.startswith('http'):  # 处理网络图片
-                    print('TODO handle this!')
-                    pass
-                elif url.startswith('./') or url.startswith('/') :  # 处理相相对路径的本地图片
-                    #  'https://raw.githubusercontent.com/{用户名}/{仓库名}/{分支名}/{文件路径}'
+                    file_relative_folder = './projectTempInfo/' + self._project_name + '/' + self._workDirectory[:self._workDirectory.rfind('/')] + '/web'
+                    self.download_http_image(file_relative_folder, url)
+                elif url.startswith('./') or url.startswith('/'):  # 处理相相对路径的本地图片
                     real_image_url = self._API_PROJECT_FILE_RAW.format(self._project_owner_name, self._project_name, self._branch, self._workDirectory[:self._workDirectory.rfind('/')] + url[url.find('/'):])
-                    # real_image_url = self._project_url + '/' + self._project_owner_name + '/blob/' + self._branch + self._workDirectory + '/' + url[url.find('/'):url.rfind('/')]
                     """
-                    
                      @TODO 路径拼接还有问题，明天继续努力
                     """
                     real_image_url_result = requests.get(real_image_url)
@@ -210,7 +208,6 @@ class GithubProjects:
                         my_file_utile = MyFileUtil.MyFileUtil(file_relative_folder)  # 创建图片文件夹相对路径
                         if my_file_utile.create_folder() is True:
                             file_path = './projectTempInfo/' + self._project_name + '/' + file_relative_path + '/' +  url[url.find('/'):url.rfind('/')]
-                            self._page.download_set.by_DownloadKit()
                             self._page.wait.download_begin()
                             download_result = self._page.download(
                                 real_image_url,
@@ -220,6 +217,7 @@ class GithubProjects:
                                 show_msg=True
                             )
                             logging.info('图片下载' + download_result[0])
+
                             # with open(file_path, 'wb') as content:
                             #     content.write(file_content)  # 保存图片
                         else:
@@ -237,11 +235,17 @@ class GithubProjects:
     """
         下载网络图片
     """
-    def download_http_image(self, url):
-        print(self._project_name)
-        image_b = requests.get(url)
-        with open('./projectTempInfo/downloads/', 'r') as content:
-            content.write(image_b.text)
+    def download_http_image(self, file_relative_folder, url):
+        self._page.wait.download_begin()
+        download_result = self._page.download(
+            url,
+            file_relative_folder,
+            None,
+            'overwrite',
+            show_msg=True
+        )
+        logging.info('图片下载' + download_result[0])
+        return download_result
 
     """
         下载相对路径图片（github项目地址）
