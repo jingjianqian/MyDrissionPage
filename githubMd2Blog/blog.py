@@ -1,12 +1,18 @@
 import logging
 
 import DrissionPage
+from DrissionPage.commons.constants import NoneElement
 from DrissionPage.errors import ElementNotFoundError
+import pyperclip
 
 from githubMd2Blog.MyFileUtil import MyFileUtil
 
 
+
 class Blog:
+    # 配置日志记录器
+    logging.basicConfig(level=logging.DEBUG, filename='blog.log', filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
+
     def __int__(self, blog_admin_url, blog_user_name, blog_pwd):
         self._blog_admin_url = blog_admin_url
         self._blog_user_name = blog_user_name
@@ -18,26 +24,35 @@ class Blog:
     def login(self):
         try:
             self._chrome.get(self._blog_admin_url)
-            self._chrome.ele('xpath://input[@id="username"]').input(self._blog_user_name)
-            self._chrome.ele('xpath://input[@id="password"]').input(self._blog_pwd)
-            self._chrome.ele('xpath://button').click()
+            is_login = self._chrome.ele('xpath://input[@id="username"]')
+            if is_login is not NoneElement:
+                is_login.input(self._blog_user_name)
+                self._chrome.ele('xpath://input[@id="password"]').input(self._blog_pwd)
+                self._chrome.ele('xpath://button').click()
             return True
         except ElementNotFoundError:
-            logging.error('元素没有找到')
+            logging.error('element not found,maybe is login status!')
             return False
 
     def upload_images(self, filepath):
         # 判断文件是否存在
         my_file_util = MyFileUtil(filepath)
+        self.close_notice()
         if my_file_util.file_if_exists():
-            self._chrome.ele('//div//section//aside//div//ul/li[@title="图片管理"]').click()
-            self._chrome.ele('//div//section//aside//div//ul/li[@title="上传图片"]').click()
+            self._chrome.ele('xpath://div//section//aside//div//ul/li[@title="图片管理"]').click()
+            self._chrome.set.upload_files(filepath)
+            self._chrome.eles('xpath://button[@type="button"]')[1].click()
+            self._chrome.wait.upload_paths_inputted()
+            logging.info('clicked the upload button!')
+            clipboard_content = pyperclip.paste()
+            print('get file_md_path:' + clipboard_content)
             """
                 返回图片
             """
-            return self._chrome.ele('//div//section//aside//div//ul/li[@title="上传图片"]').click()
+            # return self._chrome.ele('//div//section//aside//div//ul/li[@title="上传图片"]').click()
+            return clipboard_content
         else:
-            logging.error('文件不存在')
+            logging.error('file not exists!!')
             return False
     """
         编写文章并且发布
@@ -52,12 +67,21 @@ class Blog:
 
         pass
 
+    def close_notice(self):
+        try:
+            version_notice = self._chrome.ele('xpath://a[@class="ant-notification-notice-close"]')
+            if version_notice is not NoneElement:
+                version_notice.click()
+                logging.info('Closed version update notice!!')
+        except ElementNotFoundError:
+            logging.info('Element not found when try to close version update notice!')
+
 
 if __name__ == '__main__':
     blog = Blog()
     blog.__int__('https://jingjianqian.top/admin', '', '')
     blog.login()
-    image_upload_result = blog.upload_images('./githubMd2Blog/projectTempInfo/Python-100-Days/Day01-15/res/python-idle.png')
+    image_upload_result = blog.upload_images('D:\\data\\code\\back\\python\\MyDrissionPage\\githubMd2Blog\\projectTempInfo\\Python-100-Days\\Day01-15\\res\\python-idle.png')
 
 
 

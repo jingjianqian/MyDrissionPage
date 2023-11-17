@@ -1,0 +1,7 @@
+2023-11-17 13:15:33,572 - DEBUG - Starting new HTTP connection (1): 127.0.0.1:9222
+2023-11-17 13:15:33,573 - DEBUG - http://127.0.0.1:9222 "GET /json HTTP/1.1" 200 466
+2023-11-17 13:15:33,573 - DEBUG - Starting new HTTP connection (1): 127.0.0.1:9222
+2023-11-17 13:15:33,575 - DEBUG - http://127.0.0.1:9222 "GET /json HTTP/1.1" 200 466
+2023-11-17 13:15:33,579 - DEBUG - http://127.0.0.1:9222 "GET /json/version HTTP/1.1" 200 422
+2023-11-17 13:15:43,801 - ERROR - element not found,maybe is login status!
+2023-11-17 13:15:43,815 - INFO - Closed version update notice!!
