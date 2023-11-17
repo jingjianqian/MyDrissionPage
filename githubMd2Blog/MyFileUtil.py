@@ -1,4 +1,6 @@
 import os
+import shutil
+from datetime import datetime
 from pathlib import Path
 
 
@@ -46,8 +48,8 @@ class MyFileUtil:
         except Exception as e:
             print(f"删除文件 '{filename}' 出错：{e}")
 
-    def file_if_exists(self):
-        print(self._path)
+    def file_if_exists(self, file_path):
+        print(file_path)
         return True
 
     def list_folder_files(self):
@@ -58,3 +60,27 @@ class MyFileUtil:
                 temp_str = '"/video/douyin/' + str(filename) + '",'
                 files = files + temp_str
         return files
+
+    def change_file_name(self, not_default_path: str):
+        # 目标文件夹路径
+        if self.file_if_exists(not_default_path) and not_default_path.rfind('/') != -1:
+            target_folder = not_default_path[:not_default_path.rfind('/')]
+            # 生成时间戳
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            # 获取目标文件夹的父目录路径
+            parent_folder = os.path.dirname(target_folder)
+            # 构建目标文件夹路径
+            target_folder_with_timestamp = os.path.join(parent_folder, f"{os.path.basename(target_folder)}_{timestamp}")
+            # 构建目标文件路径
+            file_name = os.path.basename(not_default_path)
+            target_file = os.path.join(target_folder_with_timestamp, file_name)
+            # 创建带时间戳的目标文件夹
+            os.makedirs(target_folder_with_timestamp, exist_ok=True)
+            # 复制文件
+            shutil.copy2(not_default_path, target_file)
+            print(f"成功复制文件到 {target_file}")
+            return target_file
+        else:
+            print(f"复制文件失败，请联系小经！！！")
+            return False
+

@@ -94,7 +94,7 @@ FROM (
     #     print('select count(*) from ' + item + ';')
     # print(sql_tables)
 
-    url_re = r"!\[.*?\]\((.*?)\)"
+    url_re = r"!\[.*?\]\((.*ipython.*?)\)"
     str_s = r"""
     ![](./res/python-ipython.png)
     ![123](http://localhost/res/python-ipython.png)
@@ -103,6 +103,8 @@ FROM (
     ![](./res/python-sublime.png)
     """
     result = re.findall(url_re, str_s, flags=0)
+    print(1)
+    print(result)
     img_htt_p = r"!\[.*?\]\((http.*?)\)"
     img_htt_path = r"!\[.*?\]\((.*?)\)"
     for img in result:
