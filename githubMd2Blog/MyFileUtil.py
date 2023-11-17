@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 
@@ -48,3 +49,12 @@ class MyFileUtil:
     def file_if_exists(self):
         print(self._path)
         return True
+
+    def list_folder_files(self):
+        files = ""
+        for filename in os.listdir(self._path):
+            file_path = os.path.join(self._path, filename)
+            if os.path.isfile(file_path):
+                temp_str = '"/video/douyin/' + str(filename) + '",'
+                files = files + temp_str
+        return files

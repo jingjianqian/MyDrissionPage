@@ -1,5 +1,8 @@
 import re
 
+from githubMd2Blog.MyFileUtil import MyFileUtil
+
+
 def extract_table_name_from_sql(sql_str):
     # remove the /* */ comments
     q = re.sub(r"/\*[^*]*\*+(?:[^*/][^*]*\*+)*/", "", sql_str)
@@ -28,6 +31,9 @@ def extract_table_name_from_sql(sql_str):
     return result
 
 if __name__ == '__main__':
+    my_file_util = MyFileUtil('E:\\tiktok')
+    files = my_file_util.list_folder_files()
+    print(files)
     sql_str = """
     	SELECT 
 	T1.PERIOD_MONTH AS PERIOD,
@@ -83,10 +89,10 @@ FROM (
        """
     # tuples = ('success', 'C://')
     # print(tuples[0])
-    sql_tables = extract_table_name_from_sql(sql_str)
-    for item in sql_tables:
-        print('select count(*) from ' + item + ';')
-    print(sql_tables)
+    # sql_tables = extract_table_name_from_sql(sql_str)
+    # for item in sql_tables:
+    #     print('select count(*) from ' + item + ';')
+    # print(sql_tables)
 
     url_re = r"!\[.*?\]\((.*?)\)"
     str_s = r"""

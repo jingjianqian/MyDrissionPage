@@ -7,7 +7,7 @@ from githubMd2Blog.MyFileUtil import MyFileUtil
 
 
 class Blog:
-    def __int__(self, blog_admin_url, blog_user_name,blog_pwd):
+    def __int__(self, blog_admin_url, blog_user_name, blog_pwd):
         self._blog_admin_url = blog_admin_url
         self._blog_user_name = blog_user_name
         self._blog_pwd = blog_pwd
@@ -28,7 +28,7 @@ class Blog:
 
     def upload_images(self, filepath):
         # 判断文件是否存在
-        my_file_util = MyFileUtil()
+        my_file_util = MyFileUtil(filepath)
         if my_file_util.file_if_exists():
             self._chrome.ele('//div//section//aside//div//ul/li[@title="图片管理"]').click()
             self._chrome.ele('//div//section//aside//div//ul/li[@title="上传图片"]').click()
@@ -49,8 +49,15 @@ class Blog:
         发布已保存的全部文章
     """
     def public_all_blog(self):
-        
+
         pass
+
+
+if __name__ == '__main__':
+    blog = Blog()
+    blog.__int__('https://jingjianqian.top/admin', '', '')
+    blog.login()
+    image_upload_result = blog.upload_images('./githubMd2Blog/projectTempInfo/Python-100-Days/Day01-15/res/python-idle.png')
 
 
 

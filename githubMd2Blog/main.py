@@ -10,6 +10,7 @@ import logging
 from requests import ReadTimeout
 
 from githubMd2Blog import MyFileUtil
+from githubMd2Blog.blog import Blog
 
 """
 说明：获取某个仓库里根目录文件或文件夹数组
@@ -217,15 +218,21 @@ class GithubProjects:
                                 show_msg=True
                             )
                             logging.info('图片下载' + download_result[0])
-
+                            if download_result[0] == 'success':
+                                logging.info('开始上传图片')
+                                blog = Blog()
+                                blog.__int__('https://jingjianqian.top', '', '')
+                                upload_result = blog.upload_images(download_result[1])
+                                if upload_result[0] == 'success':
+                                    self.update_markdown_file()
+                            else:
+                                logging.error('图片下载失败')
                             # with open(file_path, 'wb') as content:
                             #     content.write(file_content)  # 保存图片
                         else:
                             logging.error('创建文件夹' + file_relative_folder + '失败')
                     else:
                         logging.info('下载【' + real_image_url + '】失败')
-                    'https://github.com/jackfrued/Python-100-Days/blob/master/Day01-15/res/TCP-IP-model.png?raw=true'
-
                 elif url.startswith('../'):
                     print('TODO handle this!')
                 else:
@@ -257,6 +264,13 @@ class GithubProjects:
         else:
             print("你的地址貌似不是相对地址，请核对！")
 
+    def update_markdown_file(self,markdown_file_path, file_paths):
+        logging.info('【更新' + self._workDirectory + '】中')
+        with open(markdown_file_path, "wb") as f:
+            file_text = f.read()  # 读取文件
+            url_re = r"!\[.*?\]\((.*?)\)"  # 正则匹配
+            new_text = re.sub(url_re, "file_paths", str(file_text)) # 替换文件内容
+            # f.write(Byte(new_text)) # 新的内容存到文件中
 
 
 if __name__ == '__main__':
