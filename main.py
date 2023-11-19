@@ -1,4 +1,8 @@
 # This is a sample Python script.
+import smtplib
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
@@ -12,6 +16,8 @@ class Primeton:
     main_url = 'https://ame.primeton.com/'
     emai_address = 'https://mail.primeton.com/'
     in_common_emails = ['C205-JSRH@primeton.com', 'huln@primeton.com']
+    my_email = 'jingjq@primeton.com'
+    my_email_pwd = ''
 
     def print_hi(self, name):
         # Use a breakpoint in the code line below to debug your script.
@@ -35,7 +41,7 @@ class Primeton:
         # page.ele('#login_btn').click()
 
     # 个人周报
-    def personal_week_report(self):
+    def personal_week_report_with_browser(self):
         page = ChromiumPage()
         try:
 
@@ -44,12 +50,12 @@ class Primeton:
             """
             page.get(self.emai_address)
             page.ele('xpath://div//input[@id="qquin"]').input('jingjq')
-            page.ele('xpath://div//div//input[@id="pptext"]').input('Jing.jianqian2334')
+            page.ele('xpath://div//div//input[@id="pptext"]').input('')
             page.ele('xpath://div//div//input[@type="submit"]').click()
             """
                 写信
             """
-            # page.ele("//div//div//ul/li//a[@id='composebtn']").input(self.emai_address[0])
+            page.ele("xpath://div//div//ul/li//a[@id='composebtn']").click()
 
             """
               抄送人
@@ -91,10 +97,42 @@ class Primeton:
         except ElementNotFoundError:
             print('找不到元素')
 
+    def personal_week_report_with_smtp(self):
+
+        # 收件人邮箱
+        receiver_email = "18697998680@163.com"
+
+        # 创建邮件内容
+        message = MIMEMultipart()
+        message["From"] = self.my_email
+        message["To"] = receiver_email
+        message["Subject"] = "邮件主题"
+
+        # 添加邮件正文
+        body = "这是邮件正文内容"
+        message.attach(MIMEText(body, "plain"))
+
+        # 添加附件
+        attachment_filename = ".gitignore"
+        with open(attachment_filename, "rb") as attachment:
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(attachment.read())
+            part.add_header("Content-Disposition", f"attachment; filename= {attachment_filename}")
+            message.attach(part)
+
+        # 发送邮件
+        with smtplib.SMTP_SSL("smtp.exmail.qq.com", 465) as server:
+            # server.starttls()
+            # server.ehlo()
+            server.login(self.my_email, self.my_email_pwd)
+            server.send_message(message)
+            print("邮件发送成功")
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     primeton = Primeton()
-    primeton.personal_week_report()
+    # primeton.personal_week_report_with_browser()
+    primeton.personal_week_report_with_smtp()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
