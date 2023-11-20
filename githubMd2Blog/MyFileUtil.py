@@ -65,17 +65,18 @@ class MyFileUtil:
         # 目标文件夹路径
         if self.file_if_exists(not_default_path) and not_default_path.rfind('/') != -1:
             target_folder = not_default_path[:not_default_path.rfind('/')]
+            source_file_name = not_default_path[not_default_path.rfind('/'):]
             # 生成时间戳
             timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-            # 获取目标文件夹的父目录路径
-            parent_folder = os.path.dirname(target_folder)
-            # 构建目标文件夹路径
-            target_folder_with_timestamp = os.path.join(parent_folder, f"{os.path.basename(target_folder)}_{timestamp}")
+            # # 获取目标文件夹的父目录路径
+            # parent_folder = os.path.dirname(target_folder)
+            # # 构建目标文件夹路径
+            # target_folder_with_timestamp = os.path.join(target_folder, f"{os.path.basename(target_folder)}_{timestamp}")
             # 构建目标文件路径
-            file_name = os.path.basename(not_default_path)
-            target_file = os.path.join(target_folder_with_timestamp, file_name)
+            file_name = os.path.basename(source_file_name)
+            target_file = os.path.join(target_folder, timestamp+file_name)
             # 创建带时间戳的目标文件夹
-            os.makedirs(target_folder_with_timestamp, exist_ok=True)
+            # os.makedirs(target_folder_with_timestamp, exist_ok=True)
             # 复制文件
             shutil.copy2(not_default_path, target_file)
             print(f"成功复制文件到 {target_file}")

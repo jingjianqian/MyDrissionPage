@@ -54,11 +54,10 @@ class Blog:
             """
             # return self._chrome.ele('//div//section//aside//div//ul/li[@title="上传图片"]').click()
             filepath = filepath.replace("\\", "/")
-            file_name = 'xixi'
+            # file_name = 'xixi'
             if filepath.rfind('/') != -1:
                 file_name = filepath[filepath.rfind('/') + 1:]
             else:
-                file_name = 'xixixi'
                 return False
             url_re = r"!\[.*?\]\((.*" + file_name + ".*?)\)"
             if len(re.findall(url_re, clipboard_content, flags=0)) > 0:
@@ -77,6 +76,7 @@ class Blog:
     """
         编写文章并且发布
     """
+
     def public_blog(self):
         self._chrome.ele('//div//section//aside//div//ul/li[@title="文章管理"]').click()
         pass

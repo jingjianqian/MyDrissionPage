@@ -17,7 +17,7 @@ class Primeton:
     emai_address = 'https://mail.primeton.com/'
     in_common_emails = ['C205-JSRH@primeton.com', 'huln@primeton.com']
     my_email = 'jingjq@primeton.com'
-    my_email_pwd = ''
+    my_email_pwd = 'Jing.jianqian2334'
 
     def print_hi(self, name):
         # Use a breakpoint in the code line below to debug your script.
@@ -110,34 +110,33 @@ class Primeton:
 
         # 添加邮件正文
         body = """
-            各位领导、同事：
-               大家好，本人双周滚动计划如下：
-            一、售前
-             无
-            二、客户/项目支持
-             1、广西路桥集团
-                  1)  确认部门业务规则
-                  2）确认业务规则版本
-                  3) 根据业务规则调整系统数据
-             
-            三、组织工作
-            无
-            四、下周工作
-             1、广西路桥集团
-                  1)  处理部分反馈的BUG
-                  2）沟通协调数据问题核对方案
-                  3）现阶段数据问题整理对比
-                  4）沟通后续系统升级优化
-        """
+各位领导、同事：
+    大家好，本人双周滚动计划如下：
+一、售前
+    无
+二、客户/项目支持
+    1、广西路桥集团
+        1)  确认部门业务规则
+        2）确认业务规则版本
+        3) 根据业务规则调整系统数据   
+三、组织工作
+    无
+四、下周工作
+    1、广西路桥集团
+        1)  处理部分反馈的BUG
+        2）沟通协调数据问题核对方案
+        3）现阶段数据问题整理对比
+        4）沟通后续系统升级优化
+"""
         message.attach(MIMEText(body, "plain"))
 
         # 添加附件
-        attachment_filename = ".gitignore"
-        with open(attachment_filename, "rb") as attachment:
-            part = MIMEBase("application", "octet-stream")
-            part.set_payload(attachment.read())
-            part.add_header("Content-Disposition", f"attachment; filename= {attachment_filename}")
-            message.attach(part)
+        # attachment_filename = ".gitignore"
+        # with open(attachment_filename, "rb") as attachment:
+        #     part = MIMEBase("application", "octet-stream")
+        #     part.set_payload(attachment.read())
+        #     part.add_header("Content-Disposition", f"attachment; filename= {attachment_filename}")
+        #     message.attach(part)
 
         # 发送邮件
         with smtplib.SMTP_SSL("smtp.exmail.qq.com", 465) as server:

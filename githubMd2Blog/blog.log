@@ -1,18 +1,9 @@
-2023-11-17 19:38:13,034 - DEBUG - Starting new HTTP connection (1): 127.0.0.1:9222
-2023-11-17 19:38:13,546 - DEBUG - http://127.0.0.1:9222 "GET /json HTTP/1.1" 200 386
-2023-11-17 19:38:13,547 - DEBUG - Starting new HTTP connection (1): 127.0.0.1:9222
-2023-11-17 19:38:13,549 - DEBUG - http://127.0.0.1:9222 "GET /json HTTP/1.1" 200 386
-2023-11-17 19:38:13,554 - DEBUG - http://127.0.0.1:9222 "GET /json/version HTTP/1.1" 200 422
-2023-11-17 19:38:23,713 - ERROR - element not found,maybe is login status!
-2023-11-17 19:38:23,731 - INFO - Closed version update notice!!
-2023-11-17 19:38:23,887 - INFO - clicked the upload button!
-2023-11-17 19:38:23,889 - ERROR - maybe have same name_picture!
-2023-11-17 19:38:23,943 - INFO - Closed version update notice!!
-2023-11-17 19:38:24,114 - INFO - clicked the upload button!
-2023-11-17 19:38:24,114 - ERROR - maybe have same name_picture!
-2023-11-17 19:38:34,191 - INFO - Element not found when try to close version update notice!
-2023-11-17 19:38:34,240 - INFO - clicked the upload button!
-2023-11-17 19:38:34,240 - ERROR - maybe have same name_picture!
-2023-11-17 19:38:44,282 - INFO - Element not found when try to close version update notice!
-2023-11-17 19:38:44,328 - INFO - clicked the upload button!
-2023-11-17 19:38:44,328 - ERROR - maybe have same name_picture!
+2023-11-20 23:02:55,343 - DEBUG - Starting new HTTP connection (1): 127.0.0.1:9222
+2023-11-20 23:02:55,869 - DEBUG - http://127.0.0.1:9222 "GET /json HTTP/1.1" 200 386
+2023-11-20 23:02:55,873 - DEBUG - Starting new HTTP connection (1): 127.0.0.1:9222
+2023-11-20 23:02:55,874 - DEBUG - http://127.0.0.1:9222 "GET /json HTTP/1.1" 200 386
+2023-11-20 23:02:55,887 - DEBUG - http://127.0.0.1:9222 "GET /json/version HTTP/1.1" 200 422
+2023-11-20 23:03:06,061 - ERROR - element not found,maybe is login status!
+2023-11-20 23:03:29,985 - INFO - Element not found when try to close version update notice!
+2023-11-20 23:03:35,218 - INFO - clicked the upload button!
+2023-11-20 23:03:43,023 - ERROR - maybe have same name_picture!
