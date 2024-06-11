@@ -6,6 +6,8 @@ import pathlib
 import re
 import time
 
+from DrissionPage._functions.tools import ElementsList
+
 import MyFileUtil
 import logging
 import DrissionPage
@@ -52,6 +54,7 @@ class GithubProject:
     ======
     ==========================================
     """
+
     def parse_project__files(self):
         print('开始爬取:' + str(self._project_name) + '项目的Markdown文件')
         self.page = DrissionPage.ChromiumPage()
@@ -74,19 +77,34 @@ class GithubProject:
     ======
     ==========================================
     """
+
     def parse_folder_md_files(self, _tree_array):
         current = 1
         markdown_list = []
         for tree_url in _tree_array:
-            print('开始获取：' + tree_url + '路径下的markdown文件列表' + str(current))
+            print('开始获取：' + str(tree_url) + '路径下的markdown文件列表' + str(current))
             current = current + 1
-            temp_tab = self.page.new_tab(tree_url)
+            self.page.get(tree_url)
+            # temp_tab.get(tree_url)
+            # temp_tab.set.activate()
+            # temp_tab.wait.load_start()
+            time.sleep(3)
+            md_files = self.page.eles("xpath:/html/body//div[@class='react-directory-filename-column']//a")
+            for file_name in md_files:
+                print(str(file_name))
+            # self.page.close_tabs(temp_tab)
+            # tab = tree_url.click.for_new_tab()
+            # markdown_list = self.parse_folder_md_files_detail(self.page.get_tab(tab))
+            # temp_tab = self.page.new_tab()
+            # temp_tab.get(tree_url)
             # self.page.get_tab(temp_tab).wait.load_start()
-            markdown_list = self.parse_folder_md_files_detail(temp_tab)
-            print(markdown_list)
-            # print(self.page.get_tabs())
-            # self.page.to_tab(self.page.get_tab(0))
-            self.page.close_tabs(temp_tab)
+            # # tab.set.activate()
+            # markdown_list = self.parse_folder_md_files_detail(self.page.get_tab(temp_tab))
+            # print(markdown_list)
+            # time.sleep(1)
+            # # print(self.page.get_tabs())
+            # # self.page.to_tab(self.page.get_tab(0))
+            # self.page.close_tabs(temp_tab)
         return markdown_list
 
     """
@@ -98,12 +116,10 @@ class GithubProject:
     """
 
     def parse_folder_md_files_detail(self, temp_tab):
-        # tab = self.page.get_tab(temp_tab)
-        self.page.to_tab(self.page.get_tab(temp_tab))
+        temp_tab.set.activate()
         md_list = self.page.eles("xpath:/html/body//div[@class='react-directory-filename-column']//a")
         return_markdown_files_array = []
         for markdown_files_obj in md_list:
-    
             return_markdown_files_array.append(markdown_files_obj)
         return return_markdown_files_array
 
