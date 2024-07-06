@@ -1,17 +1,15 @@
 """
 github 项目内部 markdown 转 博客以及
 """
-import asyncio
-import pathlib
+import csv
+import logging
 import re
 import time
 
-from DrissionPage._functions.tools import ElementsList
-
-import MyFileUtil
-import logging
 import DrissionPage
-import csv
+from DrissionPage._configs.chromium_options import ChromiumOptions
+
+from githubMd2Blog import MyFileUtil
 
 
 class GithubProject:
@@ -35,20 +33,21 @@ class GithubProject:
                             format='%(asctime)s - %(levelname)s - %(message)s')
 
     """
-    =========第一步、初始化基础数据===============
+    =========初始化基础数据===============
     ======@project_name: 项目名称
     ======@project_url:项目地址(注意是项目文件夹结构地址)
     ======@markdown_2_blog_site:博客地址
     ==========================================
     """
 
-    def __int__(self, project_name: object, project_url: object, markdown_2_blog_site: object) -> object:
+    def __int__(self, project_name: object, project_url: object, markdown_2_blog_site: object):
         self._project_url = project_url  # 项目地址
         self._project_name = project_name  # 项目名称
         self._markdown_2_blog_site = markdown_2_blog_site  # markdown 转 blog文章网站
 
+
     """
-    =========第二步、获取项目第一层文件夹清单===============
+    =========第一步、获取项目第一层文件夹清单===============
     ======
     ======@return_tree_array:第一层文件夹列表清单
     ======
@@ -56,22 +55,38 @@ class GithubProject:
     """
 
     def parse_project__files(self):
+        print('=======================================第一步============================================')
+        logging.info('=======================================第一步============================================')
+        logging.info('开始爬取:' + str(self._project_name) + '项目的Markdown文件')
         print('开始爬取:' + str(self._project_name) + '项目的Markdown文件')
+        logging.info('开始爬取:' + str(self._project_name) + '项目的Markdown文件')
+        """打开浏览器"""
         self.page = DrissionPage.ChromiumPage()
+        """设置下载路径"""
+        self.page.set.download_path('./projectTempInfo/')
         print('访问项目地址中：' + str(self._project_url))
+        logging.info('访问项目地址中：' + str(self._project_url))
+        """访问项目地址"""
         self.page.get(str(self._project_url))
+        """寻找第一层文件夹"""
         first_levels = self.page.eles("xpath:/html/body//ul//li[@class='PRIVATE_TreeView-item' and @aria-level='1']")
         print('找到第一层文件情况数量：' + str(len(first_levels)))
+        logging.info('找到第一层文件情况数量：' + str(len(first_levels)))
+        """
+            获取每一个文件夹的访问路径，放到数据返回
+        """
         return_tree_array = []
         for first_levels_name in first_levels:
             tree_name = first_levels_name.attr("id")
-            # print("路径：" + self._API_TREE_URL + '/' + tree_name.replace('-item', ''))
             return_tree_array.append(self._API_TREE_URL + '/' + tree_name.replace('-item', ''))
-        # print(return_tree_array)
+        print('结束爬取:' + str(self._project_name) + '项目的Markdown文件,一共爬取文件夹数量：' + str(len(return_tree_array)) + '个')
+        logging.info('结束爬取:' + str(self._project_name) + '项目的Markdown文件,一共爬取文件夹数量：' + str(len(return_tree_array)) + '个')
+        print('=======================================第一步============================================')
+        logging.info('=======================================第一步============================================')
         return return_tree_array
 
     """
-    =========第三步、获取第二步每个文件夹下的markdown_list文件清单===============
+    =========第二步、获取第一步每个文件夹下的markdown_list文件清单===============
     ======
     ======@return_tree_array:第一层文件夹列表清单
     ======
@@ -79,33 +94,95 @@ class GithubProject:
     """
 
     def parse_folder_md_files(self, _tree_array):
+        print('=======================================第二步============================================')
+        logging.info('=======================================第二步============================================')
+        print('开始循环：' + str(len(_tree_array) + 1) + '文件夹')
+        logging.info('开始循环：' + str(len(_tree_array) + 1) + '文件夹')
         current = 1
-        markdown_list = []
+        _markdown_list = dict()
         for tree_url in _tree_array:
-            print('开始获取：' + str(tree_url) + '路径下的markdown文件列表' + str(current))
+            print('开始获取第' + str(current) + '个文件夹路径下的markdown文件列表,路径地址为：' + str(tree_url))
+            logging.info('开始获取第' + str(current) + '个文件夹路径下的markdown文件列表,路径地址为：' + str(tree_url))
             current = current + 1
             self.page.get(tree_url)
-            # temp_tab.get(tree_url)
-            # temp_tab.set.activate()
-            # temp_tab.wait.load_start()
             time.sleep(3)
-            md_files = self.page.eles("xpath:/html/body//div[@class='react-directory-filename-column']//a")
+            md_files = self.page.eles("xpath:/html//tbody//tr//td[@colspan='1']//div["
+                                      "@class='react-directory-filename-column']//a")
+            markdown_files_count = 0
             for file_name in md_files:
-                print(str(file_name))
-            # self.page.close_tabs(temp_tab)
-            # tab = tree_url.click.for_new_tab()
-            # markdown_list = self.parse_folder_md_files_detail(self.page.get_tab(tab))
-            # temp_tab = self.page.new_tab()
-            # temp_tab.get(tree_url)
-            # self.page.get_tab(temp_tab).wait.load_start()
-            # # tab.set.activate()
-            # markdown_list = self.parse_folder_md_files_detail(self.page.get_tab(temp_tab))
-            # print(markdown_list)
-            # time.sleep(1)
-            # # print(self.page.get_tabs())
-            # # self.page.to_tab(self.page.get_tab(0))
-            # self.page.close_tabs(temp_tab)
-        return markdown_list
+                temp_tile = file_name.attr('title')
+                temp_href = file_name.attr('href')
+                if temp_href.endswith(".md"):
+                    _markdown_list[temp_tile] = temp_href
+                    markdown_files_count = markdown_files_count + 1
+                else:
+                    pass
+        print(_markdown_list)
+        print('=======================================第二步============================================')
+        logging.info('=======================================第二步============================================')
+        return _markdown_list
+    """
+    =========第四步，解析markdown文件===============
+    ======
+    ======
+    ======
+    ==========================================
+    """
+    def parse_md_link_to_md_file(self, md_files_array):
+        print('=======================================第三步============================================')
+        logging.info('=======================================第三步============================================')
+        print(len(md_files_array))
+        for file_name in md_files_array:
+            md_link = md_files_array[file_name]
+            print('访问：' + md_link + ' 文件地址')
+            self.page.get(md_link)
+            time.sleep(3)
+            self.page.set.download_path('./projectTempInfo/')
+            self.page.set.when_download_file_exists('overwrite')
+            self.page.set.download_file_name(file_name)  # 设置文件名
+            self.page.ele("xpath://button[@aria-label='Download raw content']").click()
+            self.page.wait.download_begin()  # 等待下载开始
+            print(file_name + '下载中')
+            logging.info(file_name + '下载中')
+            self.page.wait.all_downloads_done()  # 等待所有任务结束
+            print(file_name + '下载完成')
+            logging.info(file_name + '下载完成')
+            time.sleep(3)
+            """开始处理文章内的图片"""
+            image_urls = self.page.eles("xpath:/html//article//a[@rel='noopener noreferrer']")
+            print(image_urls)
+            do1 = ChromiumOptions().set_paths(local_port=9111)
+            for image in image_urls:
+                img_urm = image.attr('href')
+                print(img_urm)
+                page2 = DrissionPage.ChromiumPage(do1)
+                base_path = './projectTempInfo/images/'
+                MyFileUtil.MyFileUtil(base_path).create_folder()
+                temp_path = base_path + file_name.replace('.', '-')
+                MyFileUtil.MyFileUtil(temp_path).create_folder()
+                page2.set.download_path(temp_path)
+                page2.set.when_download_file_exists('overwrite')
+                page2.get(img_urm)
+                page2.ele("xpath://button[@aria-label='Download raw content']").click()
+                time.sleep(5)
+                page2.close()
+
+    """
+    将文件中的Markdown图片地址替换为固定的www.baidu.com。
+
+    参数:
+    file_path (str): 要处理的文件路径。
+    """
+    def replace_markdown_image_urls(self, file_path):
+        with open(file_path, 'r', encoding='utf-8') as file:
+            content = file.read()
+            reg = r"!\[([^\]]*)\]\(([^)]+)\)"
+            new_content = re.sub(reg, r'![\1](www.baidu.com)', content)
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write(new_content)
+
+
+
 
     """
     =========第三步的辅助子方法===============
@@ -250,5 +327,6 @@ if __name__ == '__main__':
     # 解析项目第一层文件夹并返回路径
     tree_array = githubMd2Blog.parse_project__files()
     # 解析第一层文件夹下，并且返回第一层下的所有markdown文件列表
-    githubMd2Blog.parse_folder_md_files(tree_array)
+    markdown_list = githubMd2Blog.parse_folder_md_files(tree_array)
+    githubMd2Blog.parse_md_link_to_md_file(markdown_list)
     # githubMd2Blog.markdown_url_to_files()
