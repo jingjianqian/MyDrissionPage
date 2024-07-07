@@ -8,12 +8,13 @@ import time
 
 import DrissionPage
 from DrissionPage._configs.chromium_options import ChromiumOptions
+from DrissionPage.errors import *
 
 from githubMd2Blog import MyFileUtil
 
 
 class GithubProject:
-    _API_TREE_URL = 'https://github.com/jackfrued/Python-100-Days/tree/master'  # 项目文件结构基路径
+    _API_TREE_URL = 'https://github.com/zhisheng17/flink-learning/tree/master/'  # 项目文件结构基路径
     """
     =========默认构造函数===============
     ======@base_host: github地址
@@ -105,9 +106,12 @@ class GithubProject:
             logging.info('开始获取第' + str(current) + '个文件夹路径下的markdown文件列表,路径地址为：' + str(tree_url))
             current = current + 1
             self.page.get(tree_url)
-            time.sleep(3)
-            md_files = self.page.eles("xpath:/html//tbody//tr//td[@colspan='1']//div["
+            time.sleep(1)
+            try:
+                md_files = self.page.eles("xpath:/html//tbody//tr//td[@colspan='1']//div["
                                       "@class='react-directory-filename-column']//a")
+            except ElementNotFoundError:
+                continue
             markdown_files_count = 0
             for file_name in md_files:
                 temp_tile = file_name.attr('title')
@@ -136,20 +140,28 @@ class GithubProject:
             md_link = md_files_array[file_name]
             print('访问：' + md_link + ' 文件地址')
             self.page.get(md_link)
-            time.sleep(3)
+            time.sleep(1)
             self.page.set.download_path('./projectTempInfo/')
             self.page.set.when_download_file_exists('overwrite')
             self.page.set.download_file_name(file_name)  # 设置文件名
-            self.page.ele("xpath://button[@aria-label='Download raw content']").click()
+            try:
+                self.page.ele("xpath://button[@aria-label='Download raw content']").click()
+            except ElementNotFoundError:
+                continue
+            time.sleep(1)
             self.page.wait.download_begin()  # 等待下载开始
             print(file_name + '下载中')
             logging.info(file_name + '下载中')
+            time.sleep(1)
             self.page.wait.all_downloads_done()  # 等待所有任务结束
             print(file_name + '下载完成')
             logging.info(file_name + '下载完成')
-            time.sleep(3)
+            time.sleep(1)
             """开始处理文章内的图片"""
-            image_urls = self.page.eles("xpath:/html//article//a[@rel='noopener noreferrer']")
+            try:
+                image_urls = self.page.eles("xpath:/html//article//a[@rel='noopener noreferrer']")
+            except ElementNotFoundError:
+                continue
             print(image_urls)
             do1 = ChromiumOptions().set_paths(local_port=9111)
             for image in image_urls:
@@ -163,8 +175,11 @@ class GithubProject:
                 page2.set.download_path(temp_path)
                 page2.set.when_download_file_exists('overwrite')
                 page2.get(img_urm)
-                page2.ele("xpath://button[@aria-label='Download raw content']").click()
-                time.sleep(5)
+                try:
+                    page2.ele("xpath://button[@aria-label='Download raw content']").click()
+                except ElementNotFoundError:
+                    continue
+                time.sleep(1)
                 page2.close()
 
     """
@@ -322,7 +337,7 @@ class GithubProject:
 if __name__ == '__main__':
     githubMd2Blog = GithubProject()
     # 初始化项目信息
-    githubMd2Blog.__int__('100天Python入门到放弃', 'https://github.com/jackfrued/Python-100-Days/tree/master/Day01-15',
+    githubMd2Blog.__int__('100天Python入门到放弃', 'https://github.com/zhisheng17/flink-learning/tree/master/Flink-Forward-2020/',
                           'https://doocs.gitee.io/md/')
     # 解析项目第一层文件夹并返回路径
     tree_array = githubMd2Blog.parse_project__files()
