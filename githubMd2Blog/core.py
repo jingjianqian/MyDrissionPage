@@ -11,10 +11,31 @@ from DrissionPage._configs.chromium_options import ChromiumOptions
 from DrissionPage.errors import *
 
 from githubMd2Blog import MyFileUtil
+from githubMd2Blog.LskyApi import LskyApi
+
+
+def change_markdown_file_image(markdown_file, target_file_name, new_image_url):
+    img_pattern = re.compile(r'(!\[[^\]]*\]\([^)]*' + re.escape(target_file_name) + r'[^)]*\))')
+    with open(markdown_file, 'r', encoding='utf-8') as file:
+        markdown_file_text = file.read()
+        file.close()
+    updated_markdown = img_pattern.sub(new_image_url, markdown_file_text, )
+    with open(markdown_file, 'w', encoding='utf-8') as file:
+        file.write(updated_markdown)
+        file.close()
+
+
+def replace_markdown_image_urls(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        content = file.read()
+        reg = r"!\[([^\]]*)\]\(([^)]+)\)"
+        new_content = re.sub(reg, r'![\1](www.baidu.com)', content)
+    with open(file_path, 'w', encoding='utf-8') as file:
+        file.write(new_content)
 
 
 class GithubProject:
-    _API_TREE_URL = 'https://github.com/zhisheng17/flink-learning/tree/master/'  # 项目文件结构基路径
+    _API_TREE_URL = 'https://github.com/jackfrued/Python-100-Days/tree/master'  # 项目文件结构基路径
     """
     =========默认构造函数===============
     ======@base_host: github地址
@@ -41,7 +62,7 @@ class GithubProject:
     ==========================================
     """
 
-    def __int__(self, project_name: object, project_url: object, markdown_2_blog_site: object):
+    def __int__(self, project_name: str, project_url: str, markdown_2_blog_site: object):
         self._project_url = project_url  # 项目地址
         self._project_name = project_name  # 项目名称
         self._markdown_2_blog_site = markdown_2_blog_site  # markdown 转 blog文章网站
@@ -58,9 +79,9 @@ class GithubProject:
     def parse_project__files(self):
         print('=======================================第一步============================================')
         logging.info('=======================================第一步============================================')
-        logging.info('开始爬取:' + str(self._project_name) + '项目的Markdown文件')
-        print('开始爬取:' + str(self._project_name) + '项目的Markdown文件')
-        logging.info('开始爬取:' + str(self._project_name) + '项目的Markdown文件')
+        logging.info('开始爬取:' + self._project_name + '项目的Markdown文件')
+        print('开始爬取:' + self._project_name + '项目的Markdown文件')
+        logging.info('开始爬取:' + self._project_name + '项目的Markdown文件')
         """打开浏览器"""
         self.page = DrissionPage.ChromiumPage()
         """设置下载路径"""
@@ -80,8 +101,8 @@ class GithubProject:
         for first_levels_name in first_levels:
             tree_name = first_levels_name.attr("id")
             return_tree_array.append(self._API_TREE_URL + '/' + tree_name.replace('-item', ''))
-        print('结束爬取:' + str(self._project_name) + '项目的Markdown文件,一共爬取文件夹数量：' + str(len(return_tree_array)) + '个')
-        logging.info('结束爬取:' + str(self._project_name) + '项目的Markdown文件,一共爬取文件夹数量：' + str(len(return_tree_array)) + '个')
+        print('结束爬取:' + self._project_name + '项目的Markdown文件,一共爬取文件夹数量：' + str(len(return_tree_array)) + '个')
+        logging.info('结束爬取:' + self._project_name + '项目的Markdown文件,一共爬取文件夹数量：' + str(len(return_tree_array)) + '个')
         print('=======================================第一步============================================')
         logging.info('=======================================第一步============================================')
         return return_tree_array
@@ -141,19 +162,23 @@ class GithubProject:
             print('访问：' + md_link + ' 文件地址')
             self.page.get(md_link)
             time.sleep(1)
-            self.page.set.download_path('./projectTempInfo/')
+            self.page.set.download_path('./projectTempInfo/' + self._project_name)
             self.page.set.when_download_file_exists('overwrite')
             self.page.set.download_file_name(file_name)  # 设置文件名
             try:
                 self.page.ele("xpath://button[@aria-label='Download raw content']").click()
             except ElementNotFoundError:
                 continue
+
             time.sleep(1)
             self.page.wait.download_begin()  # 等待下载开始
             print(file_name + '下载中')
             logging.info(file_name + '下载中')
             time.sleep(1)
-            self.page.wait.all_downloads_done()  # 等待所有任务结束
+            mission = self.page.wait.all_downloads_done()  # 等待所有任务结束
+            if mission is not True:
+                continue
+            target_file = './projectTempInfo/' + self._project_name + '/' + file_name
             print(file_name + '下载完成')
             logging.info(file_name + '下载完成')
             time.sleep(1)
@@ -166,9 +191,9 @@ class GithubProject:
             do1 = ChromiumOptions().set_paths(local_port=9111)
             for image in image_urls:
                 img_urm = image.attr('href')
-                print(img_urm)
+                # print(img_urm)
                 page2 = DrissionPage.ChromiumPage(do1)
-                base_path = './projectTempInfo/images/'
+                base_path = './projectTempInfo/' + self._project_name + '/images/'
                 MyFileUtil.MyFileUtil(base_path).create_folder()
                 temp_path = base_path + file_name.replace('.', '-')
                 MyFileUtil.MyFileUtil(temp_path).create_folder()
@@ -179,6 +204,39 @@ class GithubProject:
                     page2.ele("xpath://button[@aria-label='Download raw content']").click()
                 except ElementNotFoundError:
                     continue
+                page2.wait.download_begin()  # 等待下载开始
+
+
+                last_slash_index = img_urm.rfind('/')
+                # 提取斜杠后面的部分作为文件名
+                image_file_name = img_urm[last_slash_index + 1:]
+
+                lsky_api = LskyApi()
+                lsky_api.tokens('18697998680@163.com', '')
+                res_json = lsky_api.upload(temp_path + '/' + image_file_name)
+                if res_json is not None:
+                    new_image_url = res_json['data']['links']['markdown']
+                else:
+                    new_image_url = ''
+                print(file_name + '下载中')
+                logging.info(file_name + '下载中')
+                time.sleep(1)
+                sec_mission = page2.wait.all_downloads_done()  # 等待所有任务结束
+                if sec_mission is not True:
+                    continue
+                print(file_name + '下载完成')
+                logging.info(file_name + '下载完成')
+                """
+                    markdown中的图片地址替换成模板地址
+                """
+                print("要修改的文件：")
+                print(target_file)
+                print("图片关键字:")
+                print(image_file_name)
+                print("目标路径:")
+                print(new_image_url)
+                change_markdown_file_image(target_file, image_file_name, new_image_url)
+                # change_markdown_file_image(markdown_file_path, target_file_name, new_image_url):
                 time.sleep(1)
                 page2.close()
 
@@ -188,16 +246,6 @@ class GithubProject:
     参数:
     file_path (str): 要处理的文件路径。
     """
-    def replace_markdown_image_urls(self, file_path):
-        with open(file_path, 'r', encoding='utf-8') as file:
-            content = file.read()
-            reg = r"!\[([^\]]*)\]\(([^)]+)\)"
-            new_content = re.sub(reg, r'![\1](www.baidu.com)', content)
-        with open(file_path, 'w', encoding='utf-8') as file:
-            file.write(new_content)
-
-
-
 
     """
     =========第三步的辅助子方法===============
@@ -240,7 +288,7 @@ class GithubProject:
     # '文件内容：' + recorder.data.__str__()) recorder.record()
 
     def markdown_url_to_files(self):
-        file_path = './projectTempInfo/' + self._project_name + '.csv'
+        file_path = './projectTempInfo/' + str(self._project_name) + '.csv'
         logging.info('开始获取markdown文件内容：' + file_path)
         # 打开CSV文件
         with open(file_path, 'r', newline='', encoding='utf-8') as csvfile:
@@ -337,7 +385,7 @@ class GithubProject:
 if __name__ == '__main__':
     githubMd2Blog = GithubProject()
     # 初始化项目信息
-    githubMd2Blog.__int__('100天Python入门到放弃', 'https://github.com/zhisheng17/flink-learning/tree/master/Flink-Forward-2020/',
+    githubMd2Blog.__int__('Python-100天从新手到大师', 'https://github.com/jackfrued/Python-100-Days/tree/master/Day01-15/',
                           'https://doocs.gitee.io/md/')
     # 解析项目第一层文件夹并返回路径
     tree_array = githubMd2Blog.parse_project__files()

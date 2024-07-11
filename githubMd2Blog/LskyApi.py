@@ -8,7 +8,7 @@ import requests
 
 
 class LskyApi:
-    _API_BASE = 'http://124.227.1.192:53008/api/v1'
+    _API_BASE = 'http://zjls.spj.gxls.gov.cn/api/v1'
     _Accept = 'application/json'
     """===============
     "初始化数据
@@ -17,7 +17,7 @@ class LskyApi:
         if API_BASE is not None:
             self._API_BASE = API_BASE
         else:
-            self._API_BASE = 'http://124.227.1.192:53008/api/v1'
+            self._API_BASE = 'http://zjls.spj.gxls.gov.cn/api/v1'
         self._TOKEN = None
     """
         获取token
@@ -49,12 +49,12 @@ class LskyApi:
     def upload(self, file_path):
         method = 'POST'
         # this_heard = 'Content-Type'
-        headers = {
-            "Authorization": 'Bearer ' + self._TOKEN,
-            'Accept': LskyApi._Accept,
-            'Content-Type': 'multipart/form-data',
-            'Boundary': '-----' + self._TOKEN
-        }
+        # headers = {
+        #     "Authorization": 'Bearer ' + self._TOKEN,
+        #     'Accept': LskyApi._Accept,
+        #     'Content-Type': 'multipart/form-data',
+        #     'Boundary': '-----' + self._TOKEN
+        # }
         upload_api = '/upload'
         payload = {'Boundary': '-----' + self._TOKEN}
         files = [('file', (file_path, open(file_path, 'rb'), 'image/jpeg'))]
@@ -66,6 +66,8 @@ class LskyApi:
             return_json = None
             print(res)
         return return_json
+
+
 
 
 if __name__ == '__main__':
