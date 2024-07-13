@@ -57,7 +57,10 @@ class LskyApi:
         # }
         upload_api = '/upload'
         payload = {'Boundary': '-----' + self._TOKEN}
-        files = [('file', (file_path, open(file_path, 'rb'), 'image/jpeg'))]
+        try:
+            files = [('file', (file_path, open(file_path, 'rb'), 'image/jpeg'))]
+        except FileNotFoundError:
+            breakpoint()
         upload_api_full = self._API_BASE + upload_api
         res = requests.request(method=method, url=upload_api_full, data=payload, files=files, )
         if res.status_code == 200:

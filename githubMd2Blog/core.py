@@ -188,7 +188,7 @@ class GithubProject:
             except ElementNotFoundError:
                 continue
             print(image_urls)
-            do1 = ChromiumOptions().set_paths(local_port=9111)
+            do1 = ChromiumOptions().set_paths(local_port=9111).set_load_mode('none')
             for image in image_urls:
                 img_urm = image.attr('href')
                 # print(img_urm)
@@ -205,15 +205,16 @@ class GithubProject:
                 except ElementNotFoundError:
                     continue
                 page2.wait.download_begin()  # 等待下载开始
-
-
                 last_slash_index = img_urm.rfind('/')
                 # 提取斜杠后面的部分作为文件名
                 image_file_name = img_urm[last_slash_index + 1:]
 
                 lsky_api = LskyApi()
                 lsky_api.tokens('18697998680@163.com', '')
-                res_json = lsky_api.upload(temp_path + '/' + image_file_name)
+                try:
+                    res_json = lsky_api.upload(temp_path + '/' + image_file_name)
+                except TypeError:
+                    res_json = None
                 if res_json is not None:
                     new_image_url = res_json['data']['links']['markdown']
                 else:
